@@ -1,4 +1,13 @@
+
+
 import 'package:flutter/material.dart';
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:untitled3splashscreenandloginpage/NewScreen.dart';
+import 'model class.dart';
+
+
 import 'SplashScreen.dart';
 class Loginpage extends StatefulWidget {
   const Loginpage({Key? key}) : super(key: key);
@@ -87,12 +96,14 @@ class _LoginpageState extends State<Loginpage> {
                 Text('Forgot password', style: TextStyle(color: Colors.white),),
                 SizedBox(height:20 ,),
                 ElevatedButton(onPressed: (){
+
                   if (_formKey.currentState!.validate()) {
                     // If the form is valid, display a snackbar. In the real world,
                     // you'd often call a server or save the information in a database.
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Processing Data')),
                     );
+                    post(emailcontroller.text.trim(), passwordcontroller.text.trim(),context);
                   }
                   // print(emailcontroller.text);
 
@@ -107,4 +118,36 @@ class _LoginpageState extends State<Loginpage> {
       ),
     );
   }
+  post(String email, String password, BuildContext context) async {
+    print(email);
+    print(password);
+
+    final response = await http.post(
+        Uri.parse(
+            "https://staging.get-licensed.co.uk/guardpass/api/auth/login"),
+        body: {'email_address': email, 'password': password});
+
+    print(response.statusCode);
+    print(response.body);
+
+
+
+    print(response);
+    if(response.statusCode==200 ){
+      var data = jsonDecode(response.body);
+      King k = King.fromMap(data);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => NewScreen(  email: k.emailAddress!,password: passwordcontroller.text,
+          )),
+      );
+    }
+
+
+  }
+
+
+
+
+
 }
